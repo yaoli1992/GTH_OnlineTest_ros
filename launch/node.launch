@@ -1,0 +1,44 @@
+<launch>
+    
+    <param name = "start" type = "string" value = "start config" />
+
+   <!-- Mode_Range_None = 0,Mode_Range_S,Mode_Range_M,Mode_Range_L,Mode_Range_XL,Mode_Range_Custom,Mode_Range_WDR, -->
+
+    <param name = "Range_Mode" type = "int" value = "1" />  
+
+   <!--     Mode_DistAmp = 0,  Mode_RawPhases, Mode_None, -->
+   <param name = "FrameMode" type = "int" value = "1" />  
+
+ 
+   <!--  -->
+   <param name = "minDepthRange" type = "int" value = "0" />  
+
+   <!--  -->
+   <param name = "maxDepthRange" type = "int" value = "3000" />  
+
+   <!--  -->
+   <param name = "AmplitudeThreshold" type = "int" value = "0" />  
+
+   <!--  -->
+   <param name = "SetIntegrationTime" type = "int" value = "1000" />  
+
+   <!--  -->
+   <param name = "FrameRate" type = "int" value = "10" />  
+
+   <!--  -->
+   <param name = "ModulationFrequency" type = "int" value = "10000" />  
+
+
+   <!--  -->
+   <param name = "Gain" type = "int" value = "0" />  
+
+   <!--     Default = 0,Flip, // (along horizontal axis) Mirror, //(along vertical axis) Flip_Mirror, -->
+   <param name = "FlipMirror" type = "int" value = "0" />  
+
+    <node name="main_node" pkg = "ros_hrg_new" type = "main_node" output = "screen">
+    </node>
+</launch>
+
+
+
+
