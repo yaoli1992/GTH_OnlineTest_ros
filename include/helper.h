@@ -6,13 +6,9 @@
 #include <cstdint>
 #include <string.h>
 
-const int PHASE_HEIGHT = 240;
-const int PHASE_WIDTH = 304;
-
-const int IMAGE_HEIGHT = 240;
-const int IMAGE_WIDTH = 288;
-
-static const uint32_t OUTPUT_BUFFER_SIZE = PHASE_HEIGHT * PHASE_WIDTH * sizeof(int16_t);
+const int HEIGHT = 240;
+const int WIDTH = 304;
+static const uint32_t OUTPUT_BUFFER_SIZE = HEIGHT * WIDTH * sizeof(int16_t);
 // Helper struct for grouping outgoing data together
 struct PhaseOutput
 {
@@ -46,29 +42,16 @@ struct Phase8Output
 };
 
 // Helper struct for grouping outgoing data together
-struct AlgorithmOutput_I16
-{
-    std::shared_ptr<int16_t> depth;       // has to be pre-allocated!
-    std::shared_ptr<int16_t> amplitude;  // has to be pre-allocated!
-
-    /**
-     * Constructor.
-     * Pre-allocates the depth and confidence buffers.
-     */
-    AlgorithmOutput_I16();
-};
-
-// Helper struct for grouping outgoing data together
-struct AlgorithmOutput_F32
+struct AlgorithmOutput
 {
     std::shared_ptr<float> depth;       // has to be pre-allocated!
-    std::shared_ptr<int16_t> amplitude;  // has to be pre-allocated!
+    std::shared_ptr<float> confidence;  // has to be pre-allocated!
 
     /**
      * Constructor.
      * Pre-allocates the depth and confidence buffers.
      */
-    AlgorithmOutput_F32();
+    AlgorithmOutput();
 };
 
 /**
@@ -83,27 +66,20 @@ struct array_deleter
     }
 };
 
-AlgorithmOutput_I16::AlgorithmOutput_I16()
-    : depth(new int16_t[IMAGE_HEIGHT * IMAGE_WIDTH], array_deleter<int16_t>())
-    , amplitude(new int16_t[IMAGE_HEIGHT * IMAGE_WIDTH], array_deleter<int16_t>())
+AlgorithmOutput::AlgorithmOutput()
+    : depth(new float[HEIGHT * WIDTH], array_deleter<float>())
+    , confidence(new float[HEIGHT * WIDTH], array_deleter<float>())
 {
-    memset(depth.get(), 0, IMAGE_HEIGHT * IMAGE_WIDTH * sizeof(int16_t));
-    memset(amplitude.get(), 0, IMAGE_HEIGHT * IMAGE_WIDTH * sizeof(int16_t));
+    memset(depth.get(), 0, HEIGHT * WIDTH * sizeof(float));
+    memset(confidence.get(), 0, HEIGHT * WIDTH * sizeof(float));
 }
 
-AlgorithmOutput_F32::AlgorithmOutput_F32()
-    : depth(new float[IMAGE_HEIGHT * IMAGE_WIDTH], array_deleter<float>())
-    , amplitude(new int16_t[IMAGE_HEIGHT * IMAGE_WIDTH], array_deleter<int16_t>())
-{
-    memset(depth.get(), 0, IMAGE_HEIGHT * IMAGE_WIDTH * sizeof(float));
-    memset(amplitude.get(), 0, IMAGE_HEIGHT * IMAGE_WIDTH * sizeof(int16_t));
-}
 
 PhaseOutput::PhaseOutput()
-    : phase1(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase2(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase3(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase4(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
+    : phase1(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase2(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase3(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase4(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
 {
     memset(phase1.get(), 0, OUTPUT_BUFFER_SIZE);
     memset(phase2.get(), 0, OUTPUT_BUFFER_SIZE);
@@ -112,14 +88,14 @@ PhaseOutput::PhaseOutput()
 }
 
 Phase8Output::Phase8Output()
-    : phase1(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase2(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase3(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase4(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase5(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase6(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase7(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
-    , phase8(new int16_t[PHASE_HEIGHT * PHASE_WIDTH], array_deleter<int16_t>())
+    : phase1(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase2(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase3(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase4(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase5(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase6(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase7(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
+    , phase8(new int16_t[HEIGHT * WIDTH], array_deleter<int16_t>())
 {
     memset(phase1.get(), 0, OUTPUT_BUFFER_SIZE);
     memset(phase2.get(), 0, OUTPUT_BUFFER_SIZE);

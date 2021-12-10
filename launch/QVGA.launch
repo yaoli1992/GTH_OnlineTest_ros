@@ -1,0 +1,7 @@
+<launch>
+    <node name="main_node" pkg = "ros_hrg_new" type = "main_node" output = "screen">
+    </node>
+</launch>
+
+
+
