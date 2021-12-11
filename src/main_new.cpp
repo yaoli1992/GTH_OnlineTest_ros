@@ -28,7 +28,7 @@
 //ros
 #include <ros/ros.h>
 
-#define PCL_VISUALIZER 1
+#define PCL_VISUALIZER 0
 #if PCL_VISUALIZER
 //visualization
 #include <pcl/visualization/cloud_viewer.h>
@@ -84,7 +84,7 @@ float f = 3.3;//焦距，单位mm
 float pixel_size = 0.015;//像元尺寸，单位mm
 float fx_reciprocal = pixel_size / f;
 /*** 深度图转换成PCL点云计算函数 ***/
-/*
+
 void depthToPointCloud(cv::Mat& depth_image, pcl::PointCloud<pcl::PointXYZ>::Ptr& point_cloud_ptr)
 {
     for (int r = 0; r < 240; ++r)
@@ -109,22 +109,15 @@ void depthToPointCloud(cv::Mat& depth_image, pcl::PointCloud<pcl::PointXYZ>::Ptr
     point_cloud_ptr->width = point_cloud_ptr->points.size();
     point_cloud_ptr->height = 1;
 }
-*/
+
 
 int main(int argc, char** argv)
 {
    ros::init (argc, argv, "main_node");
    ros::NodeHandle nh;
-   //add example 
-    //  std::string string_config;
-    // if (nh.getParam("start", string_config))
-    //     ROS_INFO("start: %s", string_config.c_str());
-    // else
-    //     ROS_WARN("No config name message");
- 
-//    double noise;
-//    nh.getParam("noise", noise);
-//    ROS_INFO("noise parameter is................... %f", noise);
+
+//    ros::Publisher tof_pub = nh.advertise<sensor_msgs::PointCloud2> ("output", 1,true);
+//    ros::Rate loop_rate(20);
 
 
  	GTH::ITofSdk* tof = GTH::ITofSdk::create();
@@ -145,6 +138,18 @@ int main(int argc, char** argv)
 
     TOF_Parameters para;
     tof->getTofParameters(para);
+
+   //add example 
+     std::string string_config;
+    if (nh.getParam("start", string_config))
+        ROS_INFO("start: %s", string_config.c_str());
+    else
+        ROS_WARN("No config name message");
+ 
+//    double noise;
+//    nh.getParam("noise", noise);
+//    ROS_INFO("noise parameter is................... %f", noise);
+
 
     /*************设置为S工作模式*************/
     para.frameMode = TOF_FrameModeRawPhases;
@@ -212,20 +217,6 @@ int main(int argc, char** argv)
 	int output_idx = 0;
 	PhaseOutputArray four_phase;
 
-#ifdef PCL_VISUALIZER
-    /****** pcl viewer******/
-    Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
-    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-    viewer->setBackgroundColor(0, 0, 0);
-    viewer->addCoordinateSystem (0.3, 0.3, 0.3, 0.3);
-    viewer->initCameraParameters();
-    float theta = M_PI; // The angle of rotation in radians
-    transform (0,0) = cos (theta);
-    transform (0,1) = -sin(theta);
-    transform (1,0) = sin (theta);
-    transform (1,1) = cos (theta);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
-#endif
 
     while (ros::ok())
     {
@@ -337,10 +328,11 @@ int main(int argc, char** argv)
             cv::Mat tof_copy = img_tof_depth;
             tof_copy.convertTo(tof_copy, CV_8U, 255 / diff0);//将tof_copy的像素值缩放到0~255区间
             cv::applyColorMap(tof_copy, tof_copy, cv::COLORMAP_RAINBOW);//调用opencv的渲染函数,cv::COLORMAP_RAINBOW表明渲染的颜色为红色到紫色的渐变色(渲染你结果是彩色图)
+           
+           
             //cv::applyColorMap(tof_copy, tof_copy, cv::COLORMAP_BONE);
             cv::namedWindow("depth", 0);//创建显示窗口，窗口名为depth
             cv::setMouseCallback("depth", onMouse_depth, reinterpret_cast<void *>(&img_tof_depth));//在渲染的深度图上，鼠标点击处的像素值对应深度图img_tof_depth的像素值
-
             cv::imshow("depth", tof_copy);//显示渲染后的深度图
             cv::waitKey(1);//显示的每一帧图像持续1ms
 
@@ -362,50 +354,3 @@ int main(int argc, char** argv)
     return 0;
 }
 
-
-// #ifdef PCL_VISUALIZER
-//             viewer->removeAllPointClouds();
-//             point_cloud_ptr->clear();
-
-//             for(int i=0;i<IMAGE_HEIGHT;i++)
-//             {
-//                 for(int j=0;j<IMAGE_WIDTH;j++)
-//                 {
-//                     int index = i*IMAGE_WIDTH+j;
-//                     pcl::PointXYZ point;
-//                     point.x = pcl[index*3+0];
-//                     point.y = pcl[index*3+1];
-//                     point.z = pcl[index*3+2];
-
-//                     if(point.z > 0)
-//                     {
-//                         point_cloud_ptr->points.push_back(point);
-//                     }
-//                 }
-//             }
-//             point_cloud_ptr->width = point_cloud_ptr->points.size();
-//             point_cloud_ptr->height = 1;
-
-//               //ros viewer is needed add add by yaoli 2020.07.11.23:53 
-//         point_cloud_ptr->is_dense = true;
-//         point_cloud_ptr->header.seq=0;//need setting
-//         point_cloud_ptr->header.stamp=0;//need setting
-//         point_cloud_ptr->header.frame_id="map";//need setting
-
-
-//         sensor_msgs::PointCloud2 output;   
-//         //pcl_conversions::fromPCL(cloud_temp, output); 
-//         pcl::toROSMsg(*point_cloud_ptr,output);
-//         // output->header = point_cloud_ptr->header
-//         tof_pub.publish(output);
-
-
-
-//        // cout<<"point_cloud_ptr->points.size() : "<<point_cloud_ptr->points.size()<<endl;
-//         pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-//         pcl::transformPointCloud(*point_cloud_ptr, *transformed_cloud, transform);
-//         pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> fildColor(point_cloud_ptr, "z");//按照z字段进行渲染
-//         viewer->addPointCloud<pcl::PointXYZ>(transformed_cloud, fildColor);//显示点云，其中fildColor为颜色显示
-//         viewer->spinOnce(1);
-//         boost::this_thread::sleep(boost::posix_time::microseconds(1));
-// #endif
