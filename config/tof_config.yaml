@@ -3,8 +3,38 @@
 #--------------------------------------------------------------------------------------------
 # tof Parameters. Adjust them!
 #--------------------------------------------------------------------------------------------
+%YAML:1.0
 
+#--------------------------------------------------------------------------------------------
+# tof Parameters. Adjust them!
+#--------------------------------------------------------------------------------------------
 
+integrationTime:500  									# 积分时间设定：参考设定【300~1200】
+integrationTime_short:500  						# 短曝光积分时间
+frameRate:15   												# 帧率，设定数据输出速度，参考设定【5~20】
+modulationFrequency:40 								# 调制频率，控制光源闪动频率，参考设定【20~100】
+modulationFrequency_short:40 					# 短曝光调制频率
+inputFrequency:48											# TODO
+distanceOffset:0											# 一般无需设定。全局偏移，根据实际情况进行增减
+amplitudeThreshold:0									# 幅度阈值滤波，参考值【0~40】.幅度值低于该值的像素点深度值设为 0,
+
+frameMode:0 #default									# 设定底层上传的帧数据类型：
+#   TOF_FrameModeDistAmp = 0,					# 1、深度/幅度模式，底层直接传输计算好的深度、幅度值给上层。
+#   TOF_FrameModeRawPhases,						# 2、4phases原始数据模式，底层上传未经计算的4phase帧数据，在上层进行计算后进行数据标定，最终显示准确的深度值。
+#   TOF_FrameModeRaw8Phases,					# 3、8phases原始数据模式，底层上传未经计算的8phase帧数据.
+#   TOF_FrameModeLongShortExposure,		# 4、长短曝光模式，底层间隔上传长曝光、短曝光下的4phases，由上层判断使用哪组数据，标定后得出准确深度值。
+#   TOF_FrameModeNULL,								# 5、NULL模式，底层上传4phase，上层只做深度运算后，不做标定直接显示。
+minDepthRange:0												# 相机深度的最小测量距离
+maxDepthRange:3000										# 相机深度的最大测量距离
+illuminationPower:										# 光源强度调整（使用要求较高，接口可不对客户提供）
+continuousMode:	1											# 相机出图触发模式，1：sensor连续出图；0：上层trigger的方式出图。
+binning:															# binning模式设定，可控制sensor输出图像大小（接口可不对客户提供）
+gain:1  															# 数据增益，设定范围【1~4】测量远距离增大，反之减小。一般针对固定模式设为固定值。
+gain_short:1 													#	短曝光增益
+mirror:0															# 图像镜像，1：对图像进行镜像翻转；0：不翻转
+filter:0															# 滤波功能，1：开启滤波，0：关闭滤波
+
+ExposureMode													# 曝光模式设定，四种模式： 【S、M、L、XL】，目前只在main函数以取消注释的方式来设定：
 
 
 
